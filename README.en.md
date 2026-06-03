@@ -51,7 +51,12 @@ Each user enters their own API key. E2E does not include a built-in key.
 API key pages:
 
 - OpenAI: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-- OpenRouter: [openrouter.ai/settings/credits](https://openrouter.ai/settings/credits)
+- OpenRouter: [openrouter.ai/workspaces/default/keys](https://openrouter.ai/workspaces/default/keys)
+
+Recommended setup:
+
+- Prefer the OpenAI API with `gpt-5.4-nano` or `gpt-5.4-mini`.
+- OpenRouter can use free models. According to OpenRouter's official docs, free models are usually limited to 50 requests per day; after purchasing at least 10 credits, the free-model limit becomes 1000 requests per day. See [OpenRouter rate limits](https://openrouter.ai/docs/api-reference/limits/).
 
 ## First Setup
 

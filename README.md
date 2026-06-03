@@ -57,7 +57,12 @@ API key 由用户自己填写。E2E 不内置任何 API key。
 API key 获取入口：
 
 - OpenAI：[platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-- OpenRouter：[openrouter.ai/settings/credits](https://openrouter.ai/settings/credits)
+- OpenRouter：[openrouter.ai/workspaces/default/keys](https://openrouter.ai/workspaces/default/keys)
+
+推荐设置：
+
+- 更推荐使用 OpenAI API，模型选择 `gpt-5.4-nano` 或 `gpt-5.4-mini`。
+- OpenRouter 可以选择免费模型。根据 OpenRouter 官方文档，免费模型通常每天上限为 50 次；购买至少 10 credits 后，免费模型上限会变为每天 1000 次。详见 [OpenRouter rate limits](https://openrouter.ai/docs/api-reference/limits/)。
 
 ## 第一次设置
 
