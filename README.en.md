@@ -24,6 +24,21 @@ This open-source build is not notarized by Apple yet. On first launch, macOS may
 2. Choose `Open`
 3. Click `Open` again
 
+If the dialog only shows `Done` and `Move to Bin`:
+
+1. Click `Done`
+2. Open `System Settings`
+3. Go to `Privacy & Security`
+4. Scroll to `Security`
+5. Find the message saying `E2E` was blocked
+6. Click `Open Anyway`
+
+If you are comfortable with Terminal, you can also run:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/E2E.app
+```
+
 After the first launch, it should open normally.
 
 ## Requirements

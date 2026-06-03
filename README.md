@@ -30,6 +30,21 @@ E2E 是一个 macOS 英语阅读小工具。它的核心想法是 **English Expl
 2. 选择 `Open`
 3. 在弹窗里再次点击 `Open`
 
+如果弹窗只显示 `Done` 和 `Move to Bin`：
+
+1. 点击 `Done`
+2. 打开 `System Settings`
+3. 进入 `Privacy & Security`
+4. 滚动到 `Security`
+5. 找到关于 `E2E` 被阻止的提示
+6. 点击 `Open Anyway`
+
+如果你熟悉 Terminal，也可以运行：
+
+```bash
+xattr -dr com.apple.quarantine /Applications/E2E.app
+```
+
 第一次打开后，后面通常就可以正常打开了。
 
 ## 你需要准备什么
