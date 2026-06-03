@@ -15,8 +15,19 @@ struct HistoryStore {
     }
 
     func load(from historyFilePath: String = "") -> [WordExplanation] {
-        guard let url = historyURL(for: historyFilePath), let data = try? Data(contentsOf: url) else { return [] }
-        return (try? decoder.decode([WordExplanation].self, from: data)) ?? []
+        guard let url = historyURL(for: historyFilePath) else { return [] }
+        if let history = loadHistory(at: url) {
+            return history
+        }
+
+        guard historyFilePath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              let legacyURL = legacyDefaultHistoryURL(),
+              legacyURL != url,
+              let legacyHistory = loadHistory(at: legacyURL)
+        else {
+            return []
+        }
+        return legacyHistory
     }
 
     func save(_ history: [WordExplanation], to historyFilePath: String = "") {
@@ -57,7 +68,21 @@ struct HistoryStore {
             return nil
         }
         return supportURL
+            .appendingPathComponent("E2E", isDirectory: true)
+            .appendingPathComponent("history.json")
+    }
+
+    private func legacyDefaultHistoryURL() -> URL? {
+        guard let supportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        return supportURL
             .appendingPathComponent("ContextualExplainer", isDirectory: true)
             .appendingPathComponent("history.json")
+    }
+
+    private func loadHistory(at url: URL) -> [WordExplanation]? {
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        return try? decoder.decode([WordExplanation].self, from: data)
     }
 }

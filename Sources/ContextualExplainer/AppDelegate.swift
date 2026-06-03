@@ -67,7 +67,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let appMenu = NSMenu()
         appMenu.addItem(menuItem("Settings", action: #selector(showSettings), key: ",", modifiers: [.command]))
         appMenu.addItem(NSMenuItem.separator())
-        appMenu.addItem(menuItem("Quit Contextual Explainer", action: #selector(quit), key: "q", modifiers: [.command]))
+        appMenu.addItem(menuItem("Quit E2E", action: #selector(quit), key: "q", modifiers: [.command]))
         appMenuItem.submenu = appMenu
         mainMenu.addItem(appMenuItem)
 
@@ -89,7 +89,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func configureStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = item.button {
-            button.image = NSImage(systemSymbolName: "text.magnifyingglass", accessibilityDescription: "Contextual Explainer")
+            button.image = NSImage(systemSymbolName: "text.magnifyingglass", accessibilityDescription: "E2E")
             button.imagePosition = .imageLeading
             button.title = "Explain"
         }
@@ -330,7 +330,7 @@ final class PanelWindowController: NSWindowController {
             backing: .buffered,
             defer: false
         )
-        panel.title = "Contextual Explainer"
+        panel.title = "E2E"
         panel.isReleasedWhenClosed = false
         panel.hidesOnDeactivate = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]

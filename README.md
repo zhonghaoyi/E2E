@@ -1,180 +1,110 @@
 # E2E
 
-E2E is a small macOS reading assistant for people who want English explained in English.
+**中文** | [English](README.en.md)
 
-It is not a normal translation app. You select a sentence or paragraph, then select the word or phrase you do not understand inside E2E. The app explains that word in simple English, based on the context you gave it.
+E2E 是一个 macOS 英语阅读小工具。它的核心想法是 **English Explain English**：不用中文翻译英文，而是用简单英语解释一个词或短语在当前语境里的意思。
+
+你先选中一整句或一小段上下文，再在 E2E 里选中不懂的词。E2E 会根据这段上下文解释这个词，而不是给出脱离语境的字典义。
 
 ![E2E app icon](Resources/AppIcon.png)
 
-## What It Does
+## 适合谁
 
-- Explains selected English words or phrases in simple English.
-- Uses the surrounding context you select, so the meaning matches the sentence.
-- Supports OpenRouter and OpenAI-compatible chat APIs.
-- Lets each user enter their own API key.
-- Stores API keys in macOS Keychain, not in project files.
-- Saves local history so you can review words later.
-- Groups history by time range and occurrence count.
-- Generates short practice stories from your history words.
-- Lets you translate generated stories into Chinese for checking.
-- Supports `Command+C` twice as the main capture shortcut.
+- 读英文论文、文档、邮件、网页时，经常被单词或短语卡住的人。
+- 想用英语理解英语，而不是每次都翻译成中文的人。
+- 希望保存生词历史，并用历史词汇生成短文练习的人。
 
-## Requirements
+## 直接下载
 
-- macOS 14 or later.
-- An OpenRouter API key or an OpenAI API key.
+普通用户请直接下载 App，不需要安装 Xcode，也不需要自己编译。
 
-## Download The App
+1. 打开最新版下载页：<https://github.com/zhonghaoyi/E2E/releases/latest>
+2. 下载 `E2E-macOS-0.1.1.zip`
+3. 解压
+4. 把 `E2E.app` 拖到 `Applications` 文件夹
+5. 打开 `E2E.app`
 
-Most users should download the ready-to-run app:
+当前开源包还没有 Apple 公证。第一次打开时，macOS 可能提示“无法验证开发者”。如果出现这个提示：
 
-1. Open the latest release: <https://github.com/zhonghaoyi/E2E/releases/latest>
-2. Download `E2E-macOS-0.1.0.zip`.
-3. Unzip it.
-4. Move `ContextualExplainer.app` to your `Applications` folder.
-5. Open the app.
+1. 右键点击 `E2E.app`
+2. 选择 `Open`
+3. 在弹窗里再次点击 `Open`
 
-This open-source build is not notarized by Apple yet. On first launch, macOS may say the app cannot be opened because the developer cannot be verified. If that happens:
+第一次打开后，后面通常就可以正常打开了。
 
-1. Right-click `ContextualExplainer.app`.
-2. Choose `Open`.
-3. Click `Open` again in the confirmation dialog.
+## 你需要准备什么
 
-After the first launch, it should open normally.
+- macOS 14 或更新版本
+- 一个 OpenRouter API key 或 OpenAI API key
 
-## Install From Source
+API key 由用户自己填写。E2E 不内置任何 API key。
 
-Developers can also build the app from source.
+## 第一次设置
 
-You need Xcode Command Line Tools. Install them if you do not have them:
+1. 打开 E2E
+2. 点击 `Settings`
+3. 选择 `OpenRouter` 或 `OpenAI`
+4. 粘贴你的 API key
+5. 点击 `Refresh` 加载模型列表
+6. 选择一个模型
+7. 点击 `Test`
+8. 点击 `Save`
 
-```bash
-xcode-select --install
-```
+你的 API key 会保存在 macOS Keychain 里，不会写入 App 文件、GitHub 仓库或 history 文件。
 
-Clone the repository:
+## 如何使用
 
-```bash
-git clone https://github.com/zhonghaoyi/E2E.git
-cd E2E
-```
+1. 在论文、网页、PDF、邮件或其他 App 里，选中包含目标词的一整句或一小段。
+2. 连续按两次 `Command+C`。
+3. E2E 会把这段文字放进 `Context` 区域。
+4. 在 E2E 的 `Context` 区域里，用鼠标选中你真正不懂的词或短语。
+5. 点击 `Explain`。
 
-Build the app:
+E2E 会显示：
 
-```bash
-./build.sh
-```
-
-The built app will appear here:
-
-```text
-.build/ContextualExplainer.app
-```
-
-For normal use, copy it to Applications:
-
-```bash
-cp -R .build/ContextualExplainer.app /Applications/ContextualExplainer.app
-```
-
-Then open it from Applications.
-
-Because this is an open-source build and may not be notarized, macOS may show a security warning the first time you open it. If that happens, right-click the app and choose `Open`.
-
-## First Setup
-
-1. Open the app.
-2. Click `Settings`.
-3. Choose `OpenRouter` or `OpenAI`.
-4. Paste your API key.
-5. Click `Refresh` to load available models.
-6. Choose a model.
-7. Click `Test`.
-8. Click `Save`.
-
-Your API key is saved in macOS Keychain. It is not written to the repository, the app bundle, or `history.json`.
-
-## How To Use
-
-1. In another app, select the full sentence or paragraph you are reading.
-2. Press `Command+C` twice.
-3. E2E brings that text into the `Context` box.
-4. Inside the `Context` box, select the exact word or phrase you want explained.
-5. Click `Explain`.
-
-The app will show:
-
-- Meaning
-- Simple replacement
-- Easy example
-- Part of speech
-- History occurrence count
+- 这个词在当前语境里的意思
+- 更简单的替代表达
+- 一个简单例句
+- 当前词性
+- 历史出现次数
 
 ## History
 
-By default, history is saved here:
+E2E 会在本地保存解释历史，方便你复习。
+
+默认路径：
 
 ```text
-~/Library/Application Support/ContextualExplainer/history.json
+~/Library/Application Support/E2E/history.json
 ```
 
-You can choose a custom history path in Settings. For example, you can save `history.json` in a cloud drive folder if you want to sync it yourself.
+你也可以在 Settings 里自定义 history 文件路径，比如保存到云盘目录。history 是本地 JSON 文件，App 不会主动上传它。
 
-History records are local files. They are not uploaded by the app.
+## Story
 
-## Practice Story
+`Story` 页面可以从你的 history 里随机选词，生成一段尽量短、尽量简单的英文短文。
 
-The `Story` tab can choose words from your history and ask the model to write a short, simple story.
+你可以按这些条件筛选词汇：
 
-You can filter the word pool by:
+- 时间范围：1 天、1 周、1 个月、3 个月
+- 出现次数：全部、1 次、大于 3 次、大于 7 次
+- 词汇数量上限：10、30、50、70、100
 
-- Time range: 1 day, 1 week, 1 month, 3 months
-- Occurrence count: all, 1 time, more than 3, more than 7
-- Word count limit: 10, 30, 50, 70, 100
+短文里的 history 词汇会被高亮，点击可以跳回对应的 history 记录。你也可以点击中文翻译按钮，用来检查自己是否理解正确。
 
-Words from your history are highlighted in the generated story. Clicking a highlighted word opens the matching history entry.
+## 隐私说明
 
-## Privacy
+E2E 尽量保持本地优先：
 
-E2E is designed to be local-first:
+- API key 存在 macOS Keychain。
+- 设置存在 macOS UserDefaults。
+- history 存在本地 JSON 文件。
+- 只有当你点击 `Explain` 或生成 Story 时，选中的文本才会发送给你选择的 LLM 服务商。
+- App 不包含任何内置 API key。
 
-- API keys are stored in macOS Keychain.
-- Settings are stored in macOS UserDefaults.
-- History is stored in a local JSON file.
-- The app sends the selected context and target word to your chosen LLM provider when you click `Explain`.
-- The app does not include any built-in API key.
+## 开发者
 
-Before publishing or sharing your own fork, do not commit:
-
-- `.build/`
-- `.env`
-- `history.json`
-- local screenshots with private content
-- API keys or provider tokens
-
-## Build Notes
-
-This project intentionally uses a small shell build script instead of a full Xcode project:
-
-```bash
-./build.sh
-```
-
-The script compiles the Swift files, copies `Resources/Info.plist` and `Resources/AppIcon.icns`, then signs the local app with an ad-hoc signature.
-
-## Troubleshooting
-
-If `Command+C` twice does not work, make sure you are selecting the full context text first, then copying twice quickly.
-
-If direct selection capture or `Command+Shift+E` does not work, enable Accessibility permission:
-
-```text
-System Settings -> Privacy & Security -> Accessibility
-```
-
-If macOS still shows old permission state after enabling it, restart the app.
-
-If the Dock still shows an old icon after rebuilding, macOS is probably using its icon cache. The app bundle can still contain the new icon.
+如果你想自己编译或改代码，请看：[从源码安装](docs/install-from-source.md)。
 
 ## License
 

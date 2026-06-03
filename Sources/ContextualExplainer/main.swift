@@ -1,7 +1,7 @@
 import AppKit
 
 @main
-enum ContextualExplainerMain {
+enum E2EMain {
     @MainActor
     static func main() {
         let application = NSApplication.shared

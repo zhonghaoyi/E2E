@@ -5,9 +5,9 @@
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleDisplayName</key>
-  <string>Contextual Explainer</string>
+  <string>E2E</string>
   <key>CFBundleExecutable</key>
-  <string>ContextualExplainer</string>
+  <string>E2E</string>
   <key>CFBundleIconFile</key>
   <string>AppIcon</string>
   <key>CFBundleIdentifier</key>
@@ -15,13 +15,13 @@
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
-  <string>ContextualExplainer</string>
+  <string>E2E</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
-  <string>0.1.0</string>
+  <string>0.1.1</string>
   <key>CFBundleVersion</key>
-  <string>1</string>
+  <string>2</string>
   <key>LSMinimumSystemVersion</key>
   <string>14.0</string>
   <key>LSUIElement</key>
@@ -31,7 +31,7 @@
   <key>NSHumanReadableCopyright</key>
   <string>Copyright © 2026 Zhong Haoyi</string>
   <key>NSAppleEventsUsageDescription</key>
-  <string>Contextual Explainer can use browser automation to read selected text when requested.</string>
+  <string>E2E can use browser automation to read selected text when requested.</string>
   <key>NSServices</key>
   <array>
     <dict>
@@ -43,7 +43,7 @@
       <key>NSMessage</key>
       <string>explainSelection</string>
       <key>NSPortName</key>
-      <string>ContextualExplainer</string>
+      <string>E2E</string>
       <key>NSRequiredContext</key>
       <dict/>
       <key>NSRestricted</key>

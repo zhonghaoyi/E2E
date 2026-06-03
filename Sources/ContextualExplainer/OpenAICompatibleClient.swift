@@ -189,7 +189,7 @@ struct LLMClient {
             request.setValue("Bearer \(trimmedKey)", forHTTPHeaderField: "Authorization")
         }
         if provider == .openRouter {
-            request.setValue("Contextual Explainer", forHTTPHeaderField: "X-OpenRouter-Title")
+            request.setValue("E2E", forHTTPHeaderField: "X-OpenRouter-Title")
             request.setValue("https://contextual-explainer.local", forHTTPHeaderField: "HTTP-Referer")
         }
     }

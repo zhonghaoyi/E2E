@@ -623,7 +623,7 @@ private extension SelectionReader {
         }
 
         if message.localizedCaseInsensitiveContains("not authorized") || message.localizedCaseInsensitiveContains("not allowed") {
-            return "macOS blocked browser automation for \(appName). Open System Settings > Privacy & Security > Automation and allow ContextualExplainer to control \(appName)."
+            return "macOS blocked browser automation for \(appName). Open System Settings > Privacy & Security > Automation and allow E2E to control \(appName)."
         }
 
         return "Could not read webpage context from \(appName): \(message)"
