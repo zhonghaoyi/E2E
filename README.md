@@ -22,16 +22,35 @@ It is not a normal translation app. You select a sentence or paragraph, then sel
 ## Requirements
 
 - macOS 14 or later.
-- Xcode Command Line Tools.
 - An OpenRouter API key or an OpenAI API key.
 
-Install Xcode Command Line Tools if you do not have them:
+## Download The App
+
+Most users should download the ready-to-run app:
+
+1. Open the latest release: <https://github.com/zhonghaoyi/E2E/releases/latest>
+2. Download `E2E-macOS-0.1.0.zip`.
+3. Unzip it.
+4. Move `ContextualExplainer.app` to your `Applications` folder.
+5. Open the app.
+
+This open-source build is not notarized by Apple yet. On first launch, macOS may say the app cannot be opened because the developer cannot be verified. If that happens:
+
+1. Right-click `ContextualExplainer.app`.
+2. Choose `Open`.
+3. Click `Open` again in the confirmation dialog.
+
+After the first launch, it should open normally.
+
+## Install From Source
+
+Developers can also build the app from source.
+
+You need Xcode Command Line Tools. Install them if you do not have them:
 
 ```bash
 xcode-select --install
 ```
-
-## Install From Source
 
 Clone the repository:
 
