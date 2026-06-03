@@ -99,7 +99,7 @@ You can choose a custom history path in Settings, including a cloud-drive folder
 
 ## Story
 
-The `Story` tab chooses words from your history and generates a short, simple English passage for practice.
+The `Story` tab chooses words from your history and generates a fluent, lightly engaging English practice passage.
 
 You can filter words by:
 

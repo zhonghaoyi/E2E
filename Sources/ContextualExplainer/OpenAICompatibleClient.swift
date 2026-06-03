@@ -277,10 +277,10 @@ struct LLMClient {
     """
 
     private static let storySystemPrompt = """
-    You write very short English practice passages for a language learner.
-    Use the target vocabulary naturally.
-    Every word outside the target vocabulary should be as simple and common as possible.
-    Keep the passage as short as possible.
+    You write clear, natural, and engaging English practice passages for a language learner.
+    Use the target vocabulary naturally inside one coherent scene or small story.
+    Prefer common, readable English, but do not make the writing unnaturally childish or overly simplified.
+    Make the passage smooth and interesting enough that a learner would want to keep reading.
     Return plain text only. Do not add a title, bullet list, notes, explanations, Markdown, or JSON.
     """
 
@@ -366,23 +366,43 @@ struct LLMClient {
             let meaning = term.meaning.isEmpty ? "no note" : term.meaning
             return "\(index + 1). \(term.sample) [\(term.partOfSpeech)]: \(meaning)"
         }.joined(separator: "\n")
+        let lengthGuide = storyLengthGuide(for: terms.count)
 
         return """
-        Write one very short English passage using the vocabulary below.
+        Write one natural English practice passage using the vocabulary below.
 
         Vocabulary:
         \(vocabularyList)
 
+        Length guide:
+        \(lengthGuide)
+
         Strict rules:
         - Use every vocabulary item exactly as written.
         - Do not change the spelling or capitalization of a vocabulary item.
+        - Use each vocabulary item with the listed part of speech and meaning.
+        - Put the vocabulary into one coherent scene, moment, or small story.
+        - Make the passage fluent, vivid, and a little interesting.
+        - Use clear everyday English for the surrounding words, but do not force every non-vocabulary word to be extremely basic.
+        - If many vocabulary items are given, use short paragraphs and prioritize natural flow.
         - Do not define the words.
         - Do not make a list.
         - Do not add a title.
-        - Use very simple words for everything else.
-        - Make the passage as short as possible while still using all vocabulary items.
         - Return only the passage text.
         """
+    }
+
+    private static func storyLengthGuide(for termCount: Int) -> String {
+        switch termCount {
+        case 0...10:
+            return "About 70-120 words."
+        case 11...30:
+            return "About 140-240 words."
+        case 31...50:
+            return "About 220-380 words."
+        default:
+            return "Use the shortest passage that still feels natural. Multiple short paragraphs are okay."
+        }
     }
 
     private static func chineseTranslationUserPrompt(story: String) -> String {
