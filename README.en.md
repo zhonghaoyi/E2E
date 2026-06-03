@@ -48,6 +48,11 @@ After the first launch, it should open normally.
 
 Each user enters their own API key. E2E does not include a built-in key.
 
+API key pages:
+
+- OpenAI: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+- OpenRouter: [openrouter.ai/settings/credits](https://openrouter.ai/settings/credits)
+
 ## First Setup
 
 1. Open E2E.

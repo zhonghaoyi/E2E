@@ -54,6 +54,11 @@ xattr -dr com.apple.quarantine /Applications/E2E.app
 
 API key 由用户自己填写。E2E 不内置任何 API key。
 
+API key 获取入口：
+
+- OpenAI：[platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+- OpenRouter：[openrouter.ai/settings/credits](https://openrouter.ai/settings/credits)
+
 ## 第一次设置
 
 1. 打开 E2E
