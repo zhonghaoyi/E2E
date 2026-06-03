@@ -363,8 +363,7 @@ struct LLMClient {
 
     private static func storyUserPrompt(terms: [StoryVocabularyTerm]) -> String {
         let vocabularyList = terms.enumerated().map { index, term in
-            let meaning = term.meaning.isEmpty ? "no note" : term.meaning
-            return "\(index + 1). \(term.sample) [\(term.partOfSpeech)]: \(meaning)"
+            "\(index + 1). \(term.sample) [\(term.partOfSpeech)]"
         }.joined(separator: "\n")
         let lengthGuide = storyLengthGuide(for: terms.count)
 
@@ -380,7 +379,9 @@ struct LLMClient {
         Strict rules:
         - Use every vocabulary item exactly as written.
         - Do not change the spelling or capitalization of a vocabulary item.
-        - Use each vocabulary item with the listed part of speech and meaning.
+        - Use each vocabulary item in a natural, ordinary way for this new passage.
+        - Treat the part-of-speech label as a guide, not as a reason to force an awkward sentence.
+        - Do not reuse or imitate the original history context for a vocabulary item.
         - Put the vocabulary into one coherent scene, moment, or small story.
         - Make the passage fluent, vivid, and a little interesting.
         - Use clear everyday English for the surrounding words, but do not force every non-vocabulary word to be extremely basic.
