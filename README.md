@@ -6,7 +6,7 @@ E2E 是一个 macOS 英语阅读小工具。它的核心想法是 **English Expl
 
 你先选中一整句或一小段上下文，再在 E2E 里选中不懂的词。E2E 会根据这段上下文解释这个词，而不是给出脱离语境的字典义。
 
-![E2E app icon](Resources/AppIcon.png)
+![E2E 使用示例](docs/assets/e2e-preview.png)
 
 ## 适合谁
 

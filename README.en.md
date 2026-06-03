@@ -6,7 +6,7 @@ E2E is a small macOS reading assistant. The idea is **English Explain English**:
 
 You select a sentence or short passage first, then select the word you do not understand inside E2E. The app explains the meaning that fits that exact context.
 
-![E2E app icon](Resources/AppIcon.png)
+![E2E usage preview](docs/assets/e2e-preview.png)
 
 ## Download
 
