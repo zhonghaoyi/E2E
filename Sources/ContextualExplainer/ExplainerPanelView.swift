@@ -103,14 +103,47 @@ struct ExplainerPanelView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Context")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.secondary)
+                    HStack {
+                        Text("Context")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button {
+                            translateCurrentContext()
+                        } label: {
+                            Label(appState.isContextTranslationLoading ? "Translating" : "中文翻译", systemImage: "character.book.closed")
+                        }
+                        .controlSize(.small)
+                        .disabled(
+                            appState.contextText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                || appState.isContextTranslationLoading
+                        )
+                    }
                     SelectableContextTextView(text: $appState.contextText) { selectedText in
                         selectedExplanationText = nil
                         appState.useSelectedContextPhrase(selectedText)
                     }
                     .frame(height: 150)
+                    .onChange(of: appState.contextText) { _, _ in
+                        appState.clearContextTranslation()
+                    }
+
+                    if appState.isContextTranslationLoading {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                                .controlSize(.small)
+                            Text(appState.contextTranslationStatusMessage ?? "Translating context...")
+                                .foregroundStyle(.secondary)
+                        }
+                        .font(.callout)
+                    } else if let contextTranslationErrorMessage = appState.contextTranslationErrorMessage {
+                        Label(contextTranslationErrorMessage, systemImage: "exclamationmark.triangle")
+                            .foregroundStyle(.red)
+                            .font(.callout)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else if !appState.contextChineseTranslation.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        ContextTranslationCard(translation: appState.contextChineseTranslation)
+                    }
                 }
 
                 if appState.isLoading {
@@ -447,6 +480,12 @@ struct ExplainerPanelView: View {
         }
     }
 
+    private func translateCurrentContext() {
+        Task {
+            await appState.translateContextToChinese()
+        }
+    }
+
     private func openStoryTerm(_ term: StoryVocabularyTerm) {
         guard let item = appState.history.first(where: { HistorySampleKey($0).id == term.id }) else {
             return
@@ -456,6 +495,36 @@ struct ExplainerPanelView: View {
         expandedHistoryKeys.insert(HistorySampleKey(item))
         selectedExplanationText = nil
         selectedTab = .history
+    }
+}
+
+private struct ContextTranslationCard: View {
+    var translation: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "character.book.closed")
+                    .foregroundStyle(.secondary)
+                Text("Context 中文翻译")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+            }
+
+            Text(translation)
+                .font(.system(size: 17))
+                .lineSpacing(3)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .textSelection(.enabled)
+        }
+        .padding(12)
+        .background(Color(nsColor: .controlBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color(nsColor: .separatorColor))
+        }
     }
 }
 

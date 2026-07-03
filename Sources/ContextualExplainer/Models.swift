@@ -203,8 +203,10 @@ enum PartOfSpeechCategory: String, CaseIterable, Identifiable, Codable, Sendable
 struct ModelSettings: Codable, Equatable, Sendable {
     static let openRouterBaseURL = "https://openrouter.ai/api/v1"
     static let openAIBaseURL = "https://api.openai.com/v1"
+    static let deepSeekBaseURL = "https://api.deepseek.com"
     static let openRouterDefaultModel = "openai/gpt-5-nano"
     static let openAIDefaultModel = "gpt-5-nano"
+    static let deepSeekDefaultModel = "deepseek-v4-flash"
 
     var provider: LLMProvider
     var providerName: String
@@ -215,6 +217,8 @@ struct ModelSettings: Codable, Equatable, Sendable {
     var shortcutMode: ShortcutMode
     var isPanelPinned: Bool
     var historyFilePath: String
+    var deepSeekThinkingMode: DeepSeekThinkingMode
+    var deepSeekReasoningEffort: DeepSeekReasoningEffort
 
     static let defaults = ModelSettings(
         provider: .openRouter,
@@ -225,7 +229,9 @@ struct ModelSettings: Codable, Equatable, Sendable {
         maxTokens: 700,
         shortcutMode: .doubleCommandC,
         isPanelPinned: false,
-        historyFilePath: ""
+        historyFilePath: "",
+        deepSeekThinkingMode: .providerDefault,
+        deepSeekReasoningEffort: .high
     )
 
     init(
@@ -237,7 +243,9 @@ struct ModelSettings: Codable, Equatable, Sendable {
         maxTokens: Int,
         shortcutMode: ShortcutMode,
         isPanelPinned: Bool,
-        historyFilePath: String
+        historyFilePath: String,
+        deepSeekThinkingMode: DeepSeekThinkingMode = .providerDefault,
+        deepSeekReasoningEffort: DeepSeekReasoningEffort = .high
     ) {
         self.provider = provider
         self.providerName = providerName
@@ -248,6 +256,8 @@ struct ModelSettings: Codable, Equatable, Sendable {
         self.shortcutMode = shortcutMode
         self.isPanelPinned = isPanelPinned
         self.historyFilePath = historyFilePath
+        self.deepSeekThinkingMode = deepSeekThinkingMode
+        self.deepSeekReasoningEffort = deepSeekReasoningEffort
     }
 
     init(from decoder: Decoder) throws {
@@ -265,6 +275,8 @@ struct ModelSettings: Codable, Equatable, Sendable {
         shortcutMode = try container.decodeIfPresent(ShortcutMode.self, forKey: .shortcutMode) ?? Self.defaults.shortcutMode
         isPanelPinned = try container.decodeIfPresent(Bool.self, forKey: .isPanelPinned) ?? Self.defaults.isPanelPinned
         historyFilePath = try container.decodeIfPresent(String.self, forKey: .historyFilePath) ?? Self.defaults.historyFilePath
+        deepSeekThinkingMode = try container.decodeIfPresent(DeepSeekThinkingMode.self, forKey: .deepSeekThinkingMode) ?? Self.defaults.deepSeekThinkingMode
+        deepSeekReasoningEffort = try container.decodeIfPresent(DeepSeekReasoningEffort.self, forKey: .deepSeekReasoningEffort) ?? Self.defaults.deepSeekReasoningEffort
     }
 
     static func normalizedModel(_ model: String, for provider: LLMProvider) -> String {
@@ -273,6 +285,8 @@ struct ModelSettings: Codable, Equatable, Sendable {
             return normalizedOpenRouterModel(model)
         case .openAI:
             return normalizedOpenAIModel(model)
+        case .deepSeek:
+            return normalizedDeepSeekModel(model)
         }
     }
 
@@ -283,6 +297,8 @@ struct ModelSettings: Codable, Equatable, Sendable {
         case .openAI:
             let openAIModel = normalizedOpenAIModel(model)
             return openAIModel.contains("/") ? provider.defaultModel : openAIModel
+        case .deepSeek:
+            return normalizedDeepSeekModel(model)
         }
     }
 
@@ -312,9 +328,29 @@ struct ModelSettings: Codable, Equatable, Sendable {
         return trimmed
     }
 
+    static func normalizedDeepSeekModel(_ model: String) -> String {
+        let trimmed = model.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return deepSeekDefaultModel }
+
+        if trimmed.hasPrefix("deepseek/") {
+            let modelName = String(trimmed.dropFirst("deepseek/".count))
+            return modelName.hasPrefix("deepseek-") ? modelName : deepSeekDefaultModel
+        }
+
+        if trimmed.hasPrefix("deepseek-") {
+            return trimmed
+        }
+
+        return deepSeekDefaultModel
+    }
+
     private static func inferredProvider(providerName: String?, baseURL: String?) -> LLMProvider {
         let name = providerName?.lowercased() ?? ""
         let url = baseURL?.lowercased() ?? ""
+
+        if url.contains("api.deepseek.com") || name.contains("deepseek") {
+            return .deepSeek
+        }
 
         if url.contains("api.openai.com") || (name.contains("openai") && !name.contains("openrouter")) {
             return .openAI
@@ -324,9 +360,67 @@ struct ModelSettings: Codable, Equatable, Sendable {
     }
 }
 
+enum DeepSeekThinkingMode: String, Codable, CaseIterable, Identifiable, Equatable, Sendable {
+    case providerDefault
+    case enabled
+    case disabled
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .providerDefault:
+            return "Default"
+        case .enabled:
+            return "On"
+        case .disabled:
+            return "Off"
+        }
+    }
+
+    var detail: String {
+        switch self {
+        case .providerDefault:
+            return "Use DeepSeek default. Current default is thinking on."
+        case .enabled:
+            return "Send thinking enabled explicitly."
+        case .disabled:
+            return "Send thinking disabled explicitly."
+        }
+    }
+
+    var apiValue: String? {
+        switch self {
+        case .providerDefault:
+            return nil
+        case .enabled:
+            return "enabled"
+        case .disabled:
+            return "disabled"
+        }
+    }
+}
+
+enum DeepSeekReasoningEffort: String, Codable, CaseIterable, Identifiable, Equatable, Sendable {
+    case high
+    case max
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .high:
+            return "High"
+        case .max:
+            return "Max"
+        }
+    }
+}
+
 enum LLMProvider: String, Codable, CaseIterable, Identifiable, Equatable, Sendable {
     case openRouter
     case openAI
+    case deepSeek
 
     var id: String { rawValue }
 
@@ -336,6 +430,8 @@ enum LLMProvider: String, Codable, CaseIterable, Identifiable, Equatable, Sendab
             return "OpenRouter"
         case .openAI:
             return "OpenAI"
+        case .deepSeek:
+            return "DeepSeek"
         }
     }
 
@@ -345,6 +441,8 @@ enum LLMProvider: String, Codable, CaseIterable, Identifiable, Equatable, Sendab
             return ModelSettings.openRouterBaseURL
         case .openAI:
             return ModelSettings.openAIBaseURL
+        case .deepSeek:
+            return ModelSettings.deepSeekBaseURL
         }
     }
 
@@ -354,6 +452,8 @@ enum LLMProvider: String, Codable, CaseIterable, Identifiable, Equatable, Sendab
             return ModelSettings.openRouterDefaultModel
         case .openAI:
             return ModelSettings.openAIDefaultModel
+        case .deepSeek:
+            return ModelSettings.deepSeekDefaultModel
         }
     }
 
@@ -363,6 +463,19 @@ enum LLMProvider: String, Codable, CaseIterable, Identifiable, Equatable, Sendab
             return "OpenRouter API Key"
         case .openAI:
             return "OpenAI API Key"
+        case .deepSeek:
+            return "DeepSeek API Key"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .openRouter:
+            return "point.3.connected.trianglepath.dotted"
+        case .openAI:
+            return "sparkles"
+        case .deepSeek:
+            return "drop"
         }
     }
 }

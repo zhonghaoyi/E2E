@@ -45,6 +45,8 @@ struct LLMClient {
                     return model.supportsTextOutput
                 case .openAI:
                     return Self.isLikelyOpenAIChatModel(model.id)
+                case .deepSeek:
+                    return Self.isLikelyDeepSeekChatModel(model.id)
                 }
             }
             .sorted { lhs, rhs in
@@ -114,6 +116,23 @@ struct LLMClient {
         return Self.cleanPlainText(content)
     }
 
+    func translateContextToChinese(_ context: String, settings: ModelSettings, apiKey: String) async throws -> String {
+        let trimmedKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedContext = context.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedKey.isEmpty else { throw ExplainerError.missingAPIKey }
+        guard !trimmedContext.isEmpty else { throw ExplainerError.noText }
+
+        let maxTokens = max(settings.maxTokens, min(2400, trimmedContext.count / 2 + 300))
+        let content = try await completionContent(
+            userPrompt: Self.contextChineseTranslationUserPrompt(context: trimmedContext),
+            settings: settings,
+            apiKey: trimmedKey,
+            systemPrompt: Self.chineseTranslationSystemPrompt,
+            maxTokensOverride: maxTokens
+        )
+        return Self.cleanPlainText(content)
+    }
+
     func test(settings: ModelSettings, apiKey: String) async throws {
         _ = try await explain(
             selection: "bright",
@@ -149,7 +168,8 @@ struct LLMClient {
             temperature: settings.temperature,
             maxTokens: maxTokensOverride ?? settings.maxTokens,
             maxTokenParameter: maxTokenParameter(for: provider, model: model),
-            reasoningEffort: reasoningEffort(for: provider, model: model)
+            reasoningEffort: reasoningEffort(for: settings, model: model),
+            thinking: thinkingParameter(for: settings)
         )
         request.httpBody = try JSONEncoder().encode(body)
 
@@ -200,17 +220,36 @@ struct LLMClient {
             return .maxCompletionTokens
         case .openAI:
             return Self.usesMaxCompletionTokens(model: model) ? .maxCompletionTokens : .maxTokens
+        case .deepSeek:
+            return .maxTokens
         }
     }
 
-    private func reasoningEffort(for provider: LLMProvider, model: String) -> String? {
-        guard provider == .openAI, Self.usesMaxCompletionTokens(model: model) else {
+    private func reasoningEffort(for settings: ModelSettings, model: String) -> String? {
+        switch settings.provider {
+        case .openRouter:
+            return nil
+        case .openAI:
+            guard Self.usesMaxCompletionTokens(model: model) else {
+                return nil
+            }
+            if Self.usesNoneReasoningEffort(model: model) {
+                return "none"
+            }
+            return "minimal"
+        case .deepSeek:
+            guard settings.deepSeekThinkingMode != .disabled else {
+                return nil
+            }
+            return settings.deepSeekReasoningEffort.rawValue
+        }
+    }
+
+    private func thinkingParameter(for settings: ModelSettings) -> ChatCompletionRequest.ThinkingParameter? {
+        guard settings.provider == .deepSeek, let apiValue = settings.deepSeekThinkingMode.apiValue else {
             return nil
         }
-        if Self.usesNoneReasoningEffort(model: model) {
-            return "none"
-        }
-        return "minimal"
+        return ChatCompletionRequest.ThinkingParameter(type: apiValue)
     }
 
     private static func usesMaxCompletionTokens(model: String) -> Bool {
@@ -258,6 +297,11 @@ struct LLMClient {
             || id.hasPrefix("chatgpt-")
             || id.hasPrefix("ft:gpt-")
             || id.hasPrefix("ft:o")
+    }
+
+    private static func isLikelyDeepSeekChatModel(_ modelID: String) -> Bool {
+        let id = modelID.lowercased()
+        return id.hasPrefix("deepseek-")
     }
 
     private static let systemPrompt = """
@@ -416,6 +460,17 @@ struct LLMClient {
         """
     }
 
+    private static func contextChineseTranslationUserPrompt(context: String) -> String {
+        """
+        Translate this English context into natural Chinese.
+        Preserve technical terms, names, model names, and code-like text when translating them would be unclear.
+        Return only the Chinese translation.
+
+        English context:
+        \(context)
+        """
+    }
+
     private static func parseExplanation(from content: String, selection: String, context: String) throws -> WordExplanation {
         let cleaned = content
             .replacingOccurrences(of: "```json", with: "")
@@ -570,10 +625,15 @@ private struct ChatCompletionRequest: Encodable {
     var maxTokens: Int
     var maxTokenParameter: MaxTokenParameter
     var reasoningEffort: String?
+    var thinking: ThinkingParameter?
 
     enum MaxTokenParameter {
         case maxTokens
         case maxCompletionTokens
+    }
+
+    struct ThinkingParameter: Encodable {
+        var type: String
     }
 
     enum CodingKeys: String, CodingKey {
@@ -583,6 +643,7 @@ private struct ChatCompletionRequest: Encodable {
         case maxTokens = "max_tokens"
         case maxCompletionTokens = "max_completion_tokens"
         case reasoningEffort = "reasoning_effort"
+        case thinking
     }
 
     func encode(to encoder: Encoder) throws {
@@ -597,6 +658,7 @@ private struct ChatCompletionRequest: Encodable {
             try container.encode(maxTokens, forKey: .maxCompletionTokens)
         }
         try container.encodeIfPresent(reasoningEffort, forKey: .reasoningEffort)
+        try container.encodeIfPresent(thinking, forKey: .thinking)
     }
 }
 

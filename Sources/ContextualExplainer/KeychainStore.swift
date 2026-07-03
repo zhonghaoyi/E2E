@@ -92,6 +92,8 @@ struct KeychainStore {
             return "openrouter-api-key"
         case .openAI:
             return "openai-api-key"
+        case .deepSeek:
+            return "deepseek-api-key"
         }
     }
 

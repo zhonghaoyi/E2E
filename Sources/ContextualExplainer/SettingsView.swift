@@ -25,7 +25,7 @@ struct SettingsView: View {
                     .pickerStyle(.segmented)
 
                     HStack(spacing: 8) {
-                        Image(systemName: appState.settings.provider == .openRouter ? "point.3.connected.trianglepath.dotted" : "sparkles")
+                        Image(systemName: appState.settings.provider.systemImage)
                             .foregroundStyle(.secondary)
                         Text(appState.settings.provider.title)
                             .font(.headline)
@@ -81,6 +81,10 @@ struct SettingsView: View {
                                 .foregroundStyle(appState.modelCatalogError == nil ? Color.secondary : Color.orange)
                                 .lineLimit(2)
                         }
+                    }
+
+                    if appState.settings.provider == .deepSeek {
+                        deepSeekThinkingSettings
                     }
                 }
 
@@ -233,6 +237,34 @@ struct SettingsView: View {
         .task {
             appState.loadModelsIfNeeded()
         }
+    }
+
+    private var deepSeekThinkingSettings: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("DeepSeek Thinking")
+                .font(.headline)
+
+            Picker("Thinking", selection: $appState.settings.deepSeekThinkingMode) {
+                ForEach(DeepSeekThinkingMode.allCases) { mode in
+                    Text(mode.title).tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            Text(appState.settings.deepSeekThinkingMode.detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Picker("Effort", selection: $appState.settings.deepSeekReasoningEffort) {
+                ForEach(DeepSeekReasoningEffort.allCases) { effort in
+                    Text(effort.title).tag(effort)
+                }
+            }
+            .pickerStyle(.segmented)
+            .disabled(appState.settings.deepSeekThinkingMode == .disabled)
+        }
+        .padding(.top, 4)
     }
 }
 

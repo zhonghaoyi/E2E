@@ -11,13 +11,14 @@ RESOURCES_DIR="$CONTENTS_DIR/Resources"
 MODULE_CACHE_DIR="$BUILD_DIR/ModuleCache"
 TMP_BUILD_DIR="$BUILD_DIR/tmp"
 
+rm -rf "$APP_DIR"
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$MODULE_CACHE_DIR" "$TMP_BUILD_DIR"
 cp "$ROOT_DIR/Resources/Info.plist" "$CONTENTS_DIR/Info.plist"
 if [[ -f "$ROOT_DIR/Resources/AppIcon.icns" ]]; then
   cp "$ROOT_DIR/Resources/AppIcon.icns" "$RESOURCES_DIR/AppIcon.icns"
 fi
 
-SDK_PATH="$(xcrun --sdk macosx --show-sdk-path)"
+SDK_PATH="${SDK_PATH_OVERRIDE:-$(xcrun --sdk macosx --show-sdk-path)}"
 ARCH="$(uname -m)"
 
 SOURCES=()
@@ -40,6 +41,7 @@ env CLANG_MODULE_CACHE_PATH="$MODULE_CACHE_DIR" TMPDIR="$TMP_BUILD_DIR" \
 
 chmod +x "$MACOS_DIR/$APP_NAME"
 if command -v codesign >/dev/null 2>&1; then
+  xattr -cr "$APP_DIR" 2>/dev/null || true
   codesign --force --sign - "$APP_DIR" >/dev/null
 fi
 echo "$APP_DIR"

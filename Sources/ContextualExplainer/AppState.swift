@@ -18,6 +18,10 @@ final class AppState: ObservableObject {
     @Published var modelCatalogError: String?
     @Published var modelCatalog: [LLMModel] = []
     @Published var hasAccessibilityPermission = false
+    @Published var contextChineseTranslation: String = ""
+    @Published var isContextTranslationLoading = false
+    @Published var contextTranslationStatusMessage: String?
+    @Published var contextTranslationErrorMessage: String?
     @Published var generatedStory: String = ""
     @Published var isStoryLoading = false
     @Published var storyStatusMessage: String?
@@ -309,6 +313,7 @@ final class AppState: ObservableObject {
         contextText = trimmedText
         selectionText = ""
         currentExplanation = nil
+        clearContextTranslation()
         isLoading = false
         errorMessage = nil
         statusMessage = "Context captured. Choose a phrase in the context."
@@ -331,6 +336,7 @@ final class AppState: ObservableObject {
         contextText = trimmedText
         selectionText = ""
         currentExplanation = nil
+        clearContextTranslation()
         isLoading = false
         errorMessage = nil
         statusMessage = "New context ready. Choose a phrase in the context."
@@ -398,11 +404,13 @@ final class AppState: ObservableObject {
         selectionText = explanation.selection
         contextText = explanation.context
         currentExplanation = explanation
+        clearContextTranslation()
     }
 
     func stage(payload: SelectionPayload) {
         selectionText = payload.selection
         contextText = payload.context
+        clearContextTranslation()
         if let note = payload.note {
             statusMessage = nil
             errorMessage = note
@@ -458,6 +466,52 @@ final class AppState: ObservableObject {
         }
 
         isStoryLoading = false
+    }
+
+    func clearContextTranslation() {
+        contextChineseTranslation = ""
+        contextTranslationStatusMessage = nil
+        contextTranslationErrorMessage = nil
+    }
+
+    func translateContextToChinese() async {
+        let context = contextText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !context.isEmpty else {
+            contextTranslationErrorMessage = "Add context first."
+            contextTranslationStatusMessage = nil
+            return
+        }
+
+        guard hasAPIKey else {
+            contextTranslationErrorMessage = ExplainerError.missingAPIKey.localizedDescription
+            contextTranslationStatusMessage = nil
+            return
+        }
+
+        isContextTranslationLoading = true
+        contextChineseTranslation = ""
+        contextTranslationStatusMessage = "Translating context..."
+        contextTranslationErrorMessage = nil
+
+        do {
+            let translatedContext = try await client.translateContextToChinese(
+                context,
+                settings: settings,
+                apiKey: apiKey
+            )
+            guard Self.normalizedHistoryText(contextText) == Self.normalizedHistoryText(context) else {
+                contextTranslationStatusMessage = nil
+                isContextTranslationLoading = false
+                return
+            }
+            contextChineseTranslation = translatedContext
+            contextTranslationStatusMessage = nil
+        } catch {
+            contextTranslationErrorMessage = error.localizedDescription
+            contextTranslationStatusMessage = nil
+        }
+
+        isContextTranslationLoading = false
     }
 
     func translateStoryToChinese() async {
